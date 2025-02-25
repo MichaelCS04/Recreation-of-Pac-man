@@ -5,6 +5,7 @@ import copy
 import math
 import random
 
+
 pygame.init()
 
 # Create screen
@@ -21,8 +22,10 @@ FPS = 60
 
 # Title and Icon
 pygame.display.set_caption("Replica Pac-Man")
-icon = pygame.image.load('game_logo.png')
+logo_path = os.path.join(os.path.dirname(__file__), "game_logo.png")
+icon = pygame.image.load(logo_path)
 pygame.display.set_icon(icon)
+
 
 # Defining player action variables
 moving_left = False
@@ -39,13 +42,22 @@ class Animation:
 
     def load_images_from_folder(self, folder_path):
         images = []
+        if not os.path.exists(folder_path):
+            print(f"Error: The folder {folder_path} does not exist!")  # Debugging
+            return images
+    
         for filename in sorted(os.listdir(folder_path)):
             if filename.endswith('.png'):
-                img = pygame.image.load(os.path.join(folder_path, filename))
-                # Scale the image
-                width, height = img.get_size()
-                scaled_img = pygame.transform.scale(img, (int(width * 2), int(height * 2)))
-                images.append(scaled_img)
+                img_path = os.path.join(folder_path, filename)
+                try:
+                    img = pygame.image.load(img_path)
+                    print(f"Loaded image: {img_path}")  # Debugging
+                    # Scale the image
+                    width, height = img.get_size()
+                    scaled_img = pygame.transform.scale(img, (int(width * 2), int(height * 2)))
+                    images.append(scaled_img)
+                except pygame.error as e:
+                    print(f"Error loading image {img_path}: {e}")  # Debugging
         return images
 
     def update(self, dt):
@@ -297,17 +309,26 @@ def draw_board():
                 pygame.draw.line(window, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
 
-# Initialize Animation with folder path containing images
-folder_path = r'C:\\Users\\Castr\\OneDrive\\Desktop\\pac_animation'  # Replace with your actual folder path
+
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Path to pac_animation
+folder_path = os.path.join(base_path, "pac_animation")
 animation = Animation(folder_path, 100)
+
+# Path for ghost images
+red_ghost_path = os.path.join(base_path, "redghost")
+cyan_ghost_path = os.path.join(base_path, "cyanghost")
+orange_ghost_path = os.path.join(base_path, "orangeghost")
+pink_ghost_path = os.path.join(base_path, "pinkghost")
 
 # Initialize Player
 player = Pacman(470, 515, 5, animation)
 ghosts = [
-    Ghost(500, 380, 3, r'C:\\Users\\Castr\\OneDrive\\Desktop\\redghost'),   # Ghost 1 at position (300, 300) with red color
-    Ghost(500, 460, 3, r'C:\\Users\\Castr\\OneDrive\\Desktop\\pinkghost'),  # Ghost 2 at position (400, 400) with pink color
-    Ghost(500, 460, 3, r'C:\\Users\\Castr\\OneDrive\\Desktop\\cyanghost'),  # Ghost 3 at position (500, 300) with cyan color
-    Ghost(500, 450, 3, r'C:\\Users\\Castr\\OneDrive\\Desktop\\orangeghost') # Ghost 4 at position (600, 400) with orange color
+    Ghost(500, 380, 3, red_ghost_path),   # Ghost 1 at position (300, 300) with red color
+    Ghost(500, 460, 3, cyan_ghost_path),  # Ghost 2 at position (400, 400) with pink color
+    Ghost(500, 460, 3, orange_ghost_path),  # Ghost 3 at position (500, 300) with cyan color
+    Ghost(500, 450, 3, pink_ghost_path) # Ghost 4 at position (600, 400) with orange color
 ]
 run = True
 while run:
